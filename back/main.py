@@ -1,40 +1,71 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from database import get_db
-from models import Project, Techno, Category, Project_technology
+from sqlalchemy import MetaData, select
+from typing import Dict, Any
 
+from database import get_db, engine
+
+metadata = MetaData()
+metadata.reflect(bind=engine)
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
+    allow_credentials = True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# read SQL base
+# route for see all tables 
+@app.get('/tables')
+def get_table():
+    return list(metadata.tables.keys())
 
-@app.get("/projects")
-def get_projects(db: Session = Depends(get_db)):
-    projects = db.query(Project).all()
+# read item
+@app.get("/{table_name}")
+def get_projects(table_name : str, db: Session = Depends(get_db)):
+    table = metadata.tables.get(table_name)
+    if table is None: 
+        raise HTTPException(status_code=404, detail="Table not found")
+    projects = db.execute(select(table)).mappings().all()
     return projects
 
-@app.get('/technology')
-def get_technology(db : Session = Depends(get_db)):
-    techno = db.query(Techno).all()
-    return techno
+# create item
+@app.post('/{table_name}')
+def create_projects(table_name : str, body : Dict[str, Any] = Body(...), db : Session = Depends(get_db)):
+    table = metadata.tables.get(table_name)
+    if table is None: 
+        raise HTTPException(status_code=404, detail="Table not found")
+    tableManipulation = table.insert().values(**body)
+    db.execute(tableManipulation)
+    db.commit()
+    return {"status" : "ok", "created" : body}
 
-@app.get('/category')
-def get_category(db : Session = Depends(get_db)):
-    category = db.query(Category).all()
-    return category
+# put / patch item
+@app.put('/{table_name}/{item_id}')
+def update_projects(table_name : str, item_id : int, body : Dict[str, Any] = Body(...), db: Session = Depends(get_db)):
+    table = metadata.tables.get(table_name)
+    if table is None: 
+        raise HTTPException(status_code=404, detail="Table not found")
+    tableManipulation = (
+        table.update().where(table.c.id == item_id).values(**body)
+    )
+    db.execute(tableManipulation)
+    db.commit()
+    return {'status': 'ok', 'updated': body}
 
-# create post 
 
 # @app.delete('/projet')
-@app.delete('/category')
-def delete_category(db : Session = Depends(get_db)):
-    delete = db.delete(Category)
-    return delete
+@app.delete('/{table_name}/{item_id}')
+def delete_category(table_name : str, item_id : int, db : Session = Depends(get_db)):
+    table = metadata.tables.get(table_name)
+    if table is None:
+        raise HTTPException(status_code=404, detail="Table not found")
+    tableManipulation = table.delete().where(table.c.id == item_id)
+    db.execute(tableManipulation)
+    db.commit()
+    return {"status" : "deleted"}
+
