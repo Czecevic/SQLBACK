@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { DataItem, RemoveSelectProps } from "../interface";
+import type { DataItem, RemoveSelectProps } from "../../interface";
 
 export const RemoveItem = ({ select, selectRoute }: RemoveSelectProps) => {
   const queryClient = useQueryClient();

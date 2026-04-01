@@ -1,94 +1,90 @@
-// type
 import type { DataItem } from "./interface";
-
 import "./App.css";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-// composent
-import { NavBar } from "./components/NavBar";
-import { GetSelect } from "./components/GetSelect";
-import { RemoveItem } from "./components/RemoveItem";
-import { CreateItem } from "./components/CreateItem";
-import { UpdateItem } from "./components/UpdateItem";
-// import "@xyflow/react/dist/style.css";
+import { SelectRouteItem } from "./components/organism/SelectRouteItem";
+import { SelectRouteTable } from "./components/organism/SelectRouteTable";
 
 function App() {
   const [select, setSelect] = useState<DataItem | null>(null);
   const [selectRoute, setSelectRoute] = useState("project");
   const navbar = ["CREATE", "READ", "UPDATE", "DELETE"];
   const [selectNav, setSelectNav] = useState("READ");
-  console.log(selectRoute);
+  const [openCRUD, setOpenCRUD] = useState(false);
+
   const { data: routes = [] } = useQuery<string[]>({
     queryKey: ["routes"],
     queryFn: async () => {
       const res = await fetch("http://localhost:8000/tables");
-      const takeRes = await res.json();
-      return takeRes;
+      return res.json();
     },
   });
+
   const { data: tableData = [] } = useQuery<DataItem[]>({
     queryKey: ["data", selectRoute],
     queryFn: async () => {
       const res = await fetch(`http://localhost:8000/${selectRoute}`);
-      const response = await res.json();
-      return response;
+      return res.json();
     },
   });
+
   return (
-    <div>
-      <nav className="text-white m-5 flex gap-5">
+    <div className="min-h-screen bg-gray-950 text-white flex flex-col">
+      {/* navbar */}
+      <nav className="flex items-center gap-3 px-6 py-4 border-b border-gray-800 bg-gray-900">
+        <span className="text-gray-400 text-sm font-medium uppercase tracking-widest mr-4">
+          Tables
+        </span>
         {routes.map((route) => (
           <button
             key={route}
             onClick={() => setSelectRoute(route)}
-            className="border-2 text-3xl p-5 rounded-2xl hover:bg-amber-50 hover:text-black transition delay-75 duration-150 ease-in-out"
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150
+              ${
+                selectRoute === route
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white"
+              }`}
           >
             {route}
           </button>
         ))}
       </nav>
-      <div className="flex m-11 text-white text-2xl gap-5">
-        <div className="w-1/2">
-          {tableData.map((elem) => (
-            <div
-              className="border-blue-200 border-2 p-5 m-5 hover:bg-white hover:text-black transition delay-75 duration-150 ease-in-out break-all rounded-2xl cursor-pointer"
-              key={elem.id}
-              onClick={() => setSelect(elem)}
-            >
-              <div className="border-blue-200 pb-5">
-                {Object.entries(elem).map(([key, value]) => (
-                  <div key={`${elem.id}-${key}`} className="mb-2">
-                    <span className="font-bold capitalize">{key} :</span>{" "}
-                    {String(value)}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
+
+      {/* contenu principal */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* panneau gauche — liste */}
+        <div
+          className={`transition-all duration-300 border-r border-gray-800 overflow-y-auto
+            ${openCRUD ? "w-1/2" : "w-full"}`}
+        >
+          <SelectRouteTable tableData={tableData} setSelect={setSelect} />
         </div>
-        <div className="w-1/2">
-          <NavBar navbar={navbar} setSelectNav={setSelectNav} />
-          <pre className=" border-t-2 border-amber-50 p-10">
-            {selectNav === "READ" && <GetSelect select={select} />}
-            {selectNav === "CREATE" && (
-              <CreateItem selectRoute={selectRoute} tableData={tableData} />
-            )}
-            {selectNav === "DELETE" && (
-              <RemoveItem
-                select={select}
-                selectRoute={selectRoute}
-                tableData={tableData}
-              />
-            )}
-            {selectNav === "UPDATE" && (
-              <UpdateItem
-                select={select}
-                selectRoute={selectRoute}
-                tableData={tableData}
-              />
-            )}
-          </pre>
+
+        {/* bouton toggle CRUD */}
+        <div className="flex items-center bg-gray-900 border-r border-gray-800">
+          <button
+            onClick={() => setOpenCRUD(!openCRUD)}
+            className="h-full px-2 text-gray-400 hover:text-white hover:bg-gray-800 transition-all duration-150"
+            title={openCRUD ? "Fermer le panneau" : "Ouvrir le panneau CRUD"}
+          >
+            <span className="text-xl">{openCRUD ? "→" : "←"}</span>
+          </button>
         </div>
+
+        {/* panneau droit — CRUD */}
+        {openCRUD && (
+          <div className="flex flex-col justify-center w-1/2 overflow-y-auto bg-gray-900">
+            <SelectRouteItem
+              select={select}
+              navbar={navbar}
+              tableData={tableData}
+              selectNav={selectNav}
+              selectRoute={selectRoute}
+              setSelectNav={setSelectNav}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

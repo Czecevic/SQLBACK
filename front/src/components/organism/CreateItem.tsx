@@ -4,9 +4,11 @@ import { useState } from "react";
 export const CreateItem = ({
   selectRoute,
   tableData,
+  method,
 }: {
   selectRoute: string;
   tableData: any[];
+  method: "POST" | "PUT";
 }) => {
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState({});
@@ -19,7 +21,7 @@ export const CreateItem = ({
   const CreateSelect = useMutation({
     mutationFn: async (newItem: any) => {
       const res = await fetch(`http://localhost:8000/${selectRoute}`, {
-        method: "POST",
+        method: method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newItem),
       });

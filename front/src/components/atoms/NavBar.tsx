@@ -1,4 +1,4 @@
-import type { NavBarProps } from "../interface";
+import type { NavBarProps } from "../../interface";
 
 export const NavBar = ({ navbar, setSelectNav }: NavBarProps) => {
   return (

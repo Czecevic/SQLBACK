@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
-import type { DataItem } from "../interface";
+import type { DataItem } from "../../interface";
 import { useState } from "react";
 
 export const UpdateItem = ({ select, selectRoute, tableData }: any) => {
