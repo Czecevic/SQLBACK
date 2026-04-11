@@ -64,7 +64,7 @@ export const SelectRouteTable = ({
     [setSelect],
   );
   return (
-    <div style={{ height: 800 }}>
+    <div style={{ height: 700 }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}

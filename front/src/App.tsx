@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { SelectRouteItem } from "./components/organism/SelectRouteItem";
 import { SelectRouteTable } from "./components/organism/SelectRouteTable";
+import { ConnectionPage } from "./components/molecule/ConnectionPAge";
 
 function App() {
   const [select, setSelect] = useState<DataItem | null>(null);
@@ -11,23 +12,45 @@ function App() {
   const navbar = ["CREATE", "READ", "UPDATE", "DELETE"];
   const [selectNav, setSelectNav] = useState("READ");
   const [openCRUD, setOpenCRUD] = useState(false);
+  const [dbUrl, setDbUrl] = useState<string | null>(null);
 
   const { data: routes = [] } = useQuery<string[]>({
     queryKey: ["routes"],
     queryFn: async () => {
-      const res = await fetch("http://localhost:8000/tables");
-      return res.json();
+      const res = await fetch("http://localhost:8000/connect", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          database_url: dbUrl,
+        }),
+      });
+      const data = await res.json();
+      return data.routes;
     },
+    enabled: !!dbUrl,
   });
 
   const { data: tableData = [] } = useQuery<DataItem[]>({
-    queryKey: ["data", selectRoute],
+    queryKey: ["data", selectRoute, dbUrl],
     queryFn: async () => {
-      const res = await fetch(`http://localhost:8000/${selectRoute}`);
+      const res = await fetch(`http://localhost:8000/${selectRoute}/rows`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          database_url: dbUrl,
+        }),
+      });
       return res.json();
     },
+    enabled: !!selectRoute && !!dbUrl,
   });
 
+  if (!dbUrl) return <ConnectionPage onConnect={setDbUrl} />;
+  console.log(dbUrl);
   return (
     <div className="min-h-screen bg-gray-950 text-white flex flex-col">
       {/* navbar */}
@@ -50,7 +73,6 @@ function App() {
           </button>
         ))}
       </nav>
-
       {/* contenu principal */}
       <div className="flex flex-1 overflow-hidden">
         {/* panneau gauche — liste */}
@@ -82,6 +104,7 @@ function App() {
               selectNav={selectNav}
               selectRoute={selectRoute}
               setSelectNav={setSelectNav}
+              dbUrl={dbUrl}
             />
           </div>
         )}

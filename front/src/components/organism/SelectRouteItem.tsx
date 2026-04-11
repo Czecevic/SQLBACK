@@ -13,6 +13,7 @@ export const SelectRouteItem = ({
   selectNav,
   selectRoute,
   setSelectNav,
+  dbUrl,
 }: any) => {
   return (
     <div>
