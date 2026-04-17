@@ -1,16 +1,9 @@
 import type { SetStateAction, Dispatch } from "react";
 
-export interface DataItem {
-  id: number;
-  name: string;
-  img: string;
-  link: string;
-  icon: string;
-}
-
 export interface RemoveSelectProps {
-  select: DataItem | null;
+  select: any;
   selectRoute: string;
+  tableData: any[];
 }
 
 export interface NavBarProps {

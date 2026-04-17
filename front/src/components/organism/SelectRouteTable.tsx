@@ -1,5 +1,5 @@
-import { useCallback, useEffect } from "react";
-import type { SelectRouteTableProps, DataItem } from "../../interface";
+import { useCallback, useEffect, type SetStateAction } from "react";
+import type { SelectRouteTableProps } from "../../interface";
 // react flow
 import "@xyflow/react/dist/style.css";
 import {
@@ -8,8 +8,9 @@ import {
   useEdgesState,
   useNodesState,
 } from "@xyflow/react";
+import type { MouseEvent } from "react";
 
-const buildNodes = (tableData: DataItem[]) => {
+const buildNodes = (tableData: any[]) => {
   if (!tableData || tableData.length == 0) return [];
 
   return tableData.map((elem, index) => ({
@@ -49,7 +50,9 @@ export const SelectRouteTable = ({
   tableData,
   setSelect,
 }: SelectRouteTableProps) => {
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState<SetStateAction<any>>(
+    [],
+  );
   const [edges, , onEdgesChange] = useEdgesState([]);
 
   useEffect(() => {
@@ -58,7 +61,7 @@ export const SelectRouteTable = ({
   }, [tableData]);
 
   const onNodeClick = useCallback(
-    (_: any, node: any) => {
+    (_: MouseEvent<Element>, node: any) => {
       setSelect(node.data.raw);
     },
     [setSelect],

@@ -18,7 +18,7 @@ export const SelectRouteItem = ({
     <div>
       <NavBar navbar={navbar} setSelectNav={setSelectNav} />
       {select && (
-        <pre className=" border-t-2 border-amber-50 p-10">
+        <pre className="border-t-2 border-amber-50 p-10 text-4xl">
           {selectNav === "READ" && (
             <GetSelect select={select} tableData={tableData} />
           )}
@@ -30,7 +30,11 @@ export const SelectRouteItem = ({
             />
           )}
           {selectNav === "DELETE" && (
-            <RemoveItem select={select} selectRoute={selectRoute} />
+            <RemoveItem
+              select={select}
+              selectRoute={selectRoute}
+              tableData={tableData}
+            />
           )}
           {selectNav === "UPDATE" && (
             <UpdateItem

@@ -1,17 +1,16 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
-import type { DataItem } from "../../interface";
 import { useState } from "react";
 
 export const UpdateItem = ({ select, selectRoute, tableData }: any) => {
   const [formData, setFormData] = useState<any>({});
   const queryClient = useQueryClient();
-  const fields: any =
+  const fields =
     tableData.length > 0 &&
     Object.keys(tableData[0]).filter((key) => key !== "id");
 
   const updateSelect = useMutation({
-    mutationFn: async (elem: DataItem) => {
+    mutationFn: async (elem: any) => {
       const res = await fetch(
         `http://localhost:8000/${selectRoute}/${elem.id}`,
         {
@@ -42,7 +41,7 @@ export const UpdateItem = ({ select, selectRoute, tableData }: any) => {
         <p>Choisissez une table que vous voulez modifier</p>
       ) : (
         <form className="flex flex-col" onSubmit={handleSubmit}>
-          {fields.map((field: any, index: number) => {
+          {fields.map((field: string, index: number) => {
             return (
               <div key={index} className="flex flex-col">
                 <label>{field}</label>

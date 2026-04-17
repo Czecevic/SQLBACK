@@ -1,12 +1,12 @@
-import type { DataItem } from "./interface";
 import "./App.css";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { SelectRouteItem } from "./components/organism/SelectRouteItem";
 import { SelectRouteTable } from "./components/organism/SelectRouteTable";
+import { ToggleButton } from "./components/atoms/ToggleButton";
 
 function App() {
-  const [select, setSelect] = useState<DataItem | null>(null);
+  const [select, setSelect] = useState<any | null>(null);
   const [selectRoute, setSelectRoute] = useState("project");
   const navbar = ["CREATE", "READ", "UPDATE", "DELETE"];
   const [selectNav, setSelectNav] = useState("READ");
@@ -20,14 +20,13 @@ function App() {
     },
   });
 
-  const { data: tableData = [] } = useQuery<DataItem[]>({
+  const { data: tableData = [] } = useQuery<any[]>({
     queryKey: ["data", selectRoute],
     queryFn: async () => {
       const res = await fetch(`http://localhost:8000/${selectRoute}`);
       return res.json();
     },
   });
-
   return (
     <div className="min-h-screen bg-gray-950 text-white flex flex-col">
       {/* navbar */}
@@ -49,6 +48,10 @@ function App() {
             {route}
           </button>
         ))}
+        <div className="flex gap-7 w-full">
+          <span className="text-2xl w-1/4">rentrez l'url</span>
+          <input className="border-2 rounded-xl w-full"></input>
+        </div>
       </nav>
 
       {/* contenu principal */}
@@ -62,15 +65,7 @@ function App() {
         </div>
 
         {/* bouton toggle CRUD */}
-        <div className="flex items-center bg-gray-900 border-r border-gray-800">
-          <button
-            onClick={() => setOpenCRUD(!openCRUD)}
-            className="h-full px-2 text-gray-400 hover:text-white hover:bg-gray-800 transition-all duration-150"
-            title={openCRUD ? "Fermer le panneau" : "Ouvrir le panneau CRUD"}
-          >
-            <span className="text-xl">{openCRUD ? "→" : "←"}</span>
-          </button>
-        </div>
+        <ToggleButton openCRUD={openCRUD} setOpenCRUD={setOpenCRUD} />
 
         {/* panneau droit — CRUD */}
         {openCRUD && (
