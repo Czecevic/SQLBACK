@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { SelectRouteItem } from "./components/organism/SelectRouteItem";
 import { SelectRouteTable } from "./components/organism/SelectRouteTable";
-import { ConnectionPage } from "./components/molecule/ConnectionPAge";
+import { ConnectionPage } from "./components/molecule/ConnectionPage";
 
 function App() {
   const [select, setSelect] = useState<DataItem | null>(null);
